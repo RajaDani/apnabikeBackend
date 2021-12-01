@@ -1,0 +1,12 @@
+{
+    "PORT": 3001,
+    "dbConfig": {
+        "host": "localhost",
+        "port": "3306",
+        "database": "apnabike",
+        "username": "root",
+        "password": "",
+        "dialect": "mysql"
+    },
+    "JwtSecret": "jgdjhasg7238913789hjkhjk3123jkhjk123jk2h4jkhjk314"
+}
