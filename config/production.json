@@ -8,5 +8,6 @@
         "password": "",
         "dialect": "mysql"
     },
-    "JwtSecret": "jgdjhasg7238913789hjkhjk3123jkhjk123jk2h4jkhjk314"
+    "JwtSecret": "jgdjhasg7238913789hjkhjk3123jkhjk123jk2h4jkhjk314",
+    "uuidKey": "4982374894bfjdsfh7324897ksdbwjke"
 }

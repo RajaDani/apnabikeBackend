@@ -10,7 +10,6 @@ const { verifyToken } = require('../user');
 
 async function addNewBike(req, res) {
 
-    // let verifyUser = await verifyToken(req,res) ;
     console.log(req.body);
     let data = await validateAddBike(req.body, res);
     if (data) {
@@ -33,9 +32,8 @@ async function getAllBikes(req, res) {
 
 async function getBike(req, res) {
     try {
-
         let bikeId = req.params.bikeId;
-        let bikeDetail = await Bike.findAll({
+        let bikeDetail = await Bike.findOne({
             where: {
                 bike_id: bikeId
             },
@@ -45,11 +43,10 @@ async function getBike(req, res) {
             }
         })
         if (bikeDetail) {
-            console.log(bikeDetail);
-            res.send(bikeDetail);
+            res.status(200).send(bikeDetail);
         }
     } catch (error) {
-
+        console.log(error);
     }
 }
 
@@ -71,20 +68,6 @@ const searchBikesInCity = async (req, res) => {
         let availableBikes = await searchInCity(req.query, res);
         if (availableBikes) res.status(200).send(availableBikes);
         else console.log('Bikes not found in this city !');
-
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-async function bookBike(req, res) {
-    try {
-        let bikeToAdd = await addBookBike(req.query);
-        if (bikeToAdd) res.status(200).send(bikeToAdd);
-
-        else {
-            res.status(401).send();
-        }
 
     } catch (error) {
         console.log(error);
@@ -122,7 +105,6 @@ async function deleteBike(req, res) {
 async function totalBikes(req, res) {
     let total = await getTotalBikes(res);
     if (total) {
-        console.log({ totalBikes: total });
         res.status(200).send({ totalBikes: total })
     }
     else res.status(401).send();
@@ -133,7 +115,6 @@ module.exports = {
     addNewBike,
     searchAvailableBikes,
     getBike,
-    bookBike,
     searchBikesInCity,
     updateBike,
     deleteBike,

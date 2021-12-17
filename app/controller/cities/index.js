@@ -3,7 +3,7 @@ var Cities = require('../../../models/cities');
 // var City = require('../../../models/citiesAndBikes');
 
 async function addCity(req, res) {
-    let city = await Cities.create({ city_name: 'Faislabad' });
+    let city = await Cities.create({ city_name: req.query.city_name });
 }
 
 async function getCities(req, res) {

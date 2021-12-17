@@ -6,9 +6,14 @@ var Rent = require('./rent');
 const Bike = sequelize.define('Bike', {
     bike_id: {
         type: Sequelize.INTEGER,
-        autoIncrement: true,
-        allowNull: false,
         primaryKey: true,
+        allowNull: false,
+        autoIncrement: true
+    },
+    bike_uuid: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        allowNull: false,
     },
     category: {
         type: Sequelize.STRING,

@@ -2,11 +2,13 @@ const sequelize = require('../../../models/db');
 const User = require('../../../models/users');
 const jwt = require('jsonwebtoken');
 const config = require('config')
-const createError = require('http-errors')
 const { validateNewUser, validateAdmin } = require('../../validators/User');
 const { newUser, allUsers, addNewAdmin, verifyAdminFromDatabase, updateUserData,
     deleteUserData, verifyUserMobile } = require('../../services/userServices');
 const Admin = require('../../../models/admin');
+const { adminToken, userToken } = require('../JwtToken/generateTokens');
+const { verifyAdminToken, verifyUserToken } = require('../JwtToken/verifyTokens');
+
 
 const addNewUser = async (req, res) => {
 
@@ -15,17 +17,7 @@ const addNewUser = async (req, res) => {
         if (data) {
             let newuser = await newUser(data, res);
             if (newuser) {
-                let token = jwt.sign(
-                    { userId: newuser.user_id, userName: newuser.username },
-                    config.get("JwtSecret"),
-                    {
-                        expiresIn: '7 day'
-                    }
-                );
-                console.log('token', token)
-                let username = newuser.username;
-                let result = { username, token }
-                res.status(200).send(result);
+                userToken(newuser, res);
             }
         }
 
@@ -47,22 +39,11 @@ const authenticateUser = async (req, res) => {
                 password: password
             }
         });
-
         if (user) {
-            let token = jwt.sign(
-                { userId: user.user_id, userName: user.username, email: user.email },
-                config.get("JwtSecret"),
-                {
-                    expiresIn: '7 day'
-                }
-            );
-            let username = user.username;
-            let result = { username, token }
-            res.send(result);
+            userToken(user, res);
         }
         else {
-            var err = createError(401);
-            res.send(err);
+            res.status(404).send({ message: 'User not found!' })
         }
     }
 
@@ -72,24 +53,20 @@ const authenticateUser = async (req, res) => {
 }
 
 async function verifyToken(req, res) {
-    let authHeader = req.headers.authorization;
-    let token = authHeader.split(' ')[1];
-
-    jwt.verify(token, config.get("JwtSecret"), function (err, result) {
-        if (err) {
-            let tokenError = createError(401);
-            res.status(401).send();
+    try {
+        let result = await verifyUserToken(req, res);
+        if (result) {
+            res.status(200).send({ userId: result.userId, email: result.email, username: result.userName, message: "Token verified" });
         }
-        else {
-            return;
-            res.status(200).send({ userId: result.userId, email: result.email, username: result.userName });
-        }
-    })
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
-
 
 async function getAllUsers(req, res) {
     try {
+
         let users = await allUsers();
         if (users) {
             res.send(users);
@@ -105,19 +82,9 @@ async function verifyAdmin(req, res) {
         console.log(req.body);
         let admin = await verifyAdminFromDatabase(req.body, res);
         if (admin) {
-            let token = jwt.sign(
-                { adminId: admin.admin_id, name: admin.firstname },
-                config.get('JwtSecret'),
-                {
-                    expiresIn: '7days'
-                }
-            );
-
-            let adminName = admin.firstname;
-            let result = { token, adminName };
-            res.send({ result, message: 'Verified Admin' });
+            adminToken(admin, res);
         }
-        else res.status(400).send({ message: 'Admin not found' })
+        else res.status(404).send({ message: 'Admin not found' })
     } catch (error) {
         console.log(error);
     }
@@ -131,18 +98,9 @@ async function addAdmin(req, res) {
         let validatedData = await validateAdmin(req.body, res);
         if (validatedData) {
             let newAdmin = await addNewAdmin(validatedData, res);
-            let token = jwt.sign(
-                { adminId: newAdmin.admin_id, firstname: newAdmin.firstname, email: newAdmin.email },
-                config.get("JwtSecret"),
-                {
-                    expiresIn: '7 day'
-                }
-            );
-            console.log(token);
-            let adminName = newAdmin.firstname;
-            let result = { token, adminName }
-            console.log(result);
-            res.status(200).send(result);
+            if (newAdmin) {
+                adminToken(newAdmin, res);
+            }
         }
         else res.status(401).send({ message: 'Error Adding Admin!' });
 
@@ -153,9 +111,8 @@ async function addAdmin(req, res) {
 
 async function verifyUser(req, res) {
     let mobile = req.params.mobile;
-    console.log(mobile);
     let user = await verifyUserMobile(mobile, res);
-    if (user) res.status(200).send({ message: 'User verified' })
+    if (user) res.status(200).send({ user, message: 'User verified' })
     else res.status(404).send({ message: 'Not found' })
 }
 

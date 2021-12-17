@@ -2,11 +2,10 @@ const sequelize = require('../../../models/db');
 const Bike = require('../../../models/bikes')
 const Rent = require('../../../models/rent');
 const City = require('../../../models/cities');
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const BookedBike = require('../../../models/bookedBikes');
 
 const createError = require('http-errors');
-const { func } = require('joi');
 
 async function addBike({ value }, res) {
     try {
@@ -69,27 +68,40 @@ async function searchBikes(data) {
 
         let bookedBikes = await BookedBike.findAll({
             where: {
-                [Op.or]: {
-                    booked_from: {
-                        [Op.between]: [data.bookedFrom, data.bookedTill]
+                [Op.and]: [{
+                    [Op.or]: {
+                        booked_from: {
+                            [Op.between]: [data.bookedFrom, data.bookedTill]
+                        },
+                        booked_till: {
+                            [Op.between]: [data.bookedFrom, data.bookedTill]
+                        },
                     },
-                    booked_till: {
-                        [Op.between]: [data.bookedFrom, data.bookedTill]
-                    },
-                },
+                }, {
+                    city: data.city
+                }]
             },
         });
 
-        let Bikes = await Bike.findAll({
+        if (bookedBikes) {
+            let length = bookedBikes.length;
+            var booked = [];
+            for (let i = 0; i < length; i++) {
+                booked[i] = JSON.stringify(bookedBikes[i].bike_id);
+            }
+        }
+
+        let Bikes = [] = await Bike.findAll({
             include: {
                 model: Rent
             },
             where: {
-                id_city: cityId
+                id_city: cityId,
+                bike_id: { [Op.notIn]: booked }
             }
         });
 
-        if (Bikes.length > 1) {
+        if (Bikes || bookedBikes) {
             return { Bikes, bookedBikes };
         }
         else {
@@ -133,27 +145,6 @@ async function searchInCity(data, res) {
     }
 }
 
-
-async function addBookBike(data, res) {
-    try {
-        console.log(data.bike);
-        let newBookedBike = await BookedBike.create({
-            bike_id: data.bikeid,
-            user_id: data.userId,
-            booked_from: data.pickup,
-            booked_till: data.dropoff,
-            city: data.city
-        })
-        if (newBookedBike) {
-            console.log(newBookedBike.booked_bikes_id);
-            return newBookedBike;
-        }
-        else res.status(401).send();
-    } catch (error) {
-        console.log(error);
-    }
-}
-
 async function updateBikeData(data, res) {
 
     console.log('In service Data is ==>', data);
@@ -190,7 +181,7 @@ async function deleteBikeData(data, res) {
 
 async function getTotalBikes(res) {
     let total = await Bike.count();
-    if (total) { console.log(total); return total; }
+    if (total) return total
     else res.status(401).send();
 }
 
@@ -198,7 +189,6 @@ module.exports = {
     addBike,
     getBikes,
     searchBikes,
-    addBookBike,
     searchInCity,
     updateBikeData,
     deleteBikeData,

@@ -5,9 +5,9 @@ var Bike = require('./bikes');
 const Rent = sequelize.define('Rent', {
     id: {
         type: Sequelize.INTEGER,
-        autoIncrement: true,
         allowNull: false,
         primaryKey: true,
+        autoIncrement: true
     },
     daily_rent: {
         type: Sequelize.INTEGER,

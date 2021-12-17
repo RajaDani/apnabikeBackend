@@ -8,6 +8,11 @@ const BookedBikes = sequelize.define('BookedBikes', {
         primaryKey: true,
         autoIncrement: true
     },
+    booked_uuid: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        allowNull: false,
+    },
     bike_id: {
         type: Sequelize.INTEGER,
         allowNull: false
@@ -17,11 +22,11 @@ const BookedBikes = sequelize.define('BookedBikes', {
         allowNull: false
     },
     booked_from: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
         allowNull: false
     },
     booked_till: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
         allowNull: false
     },
     city: {
@@ -29,7 +34,7 @@ const BookedBikes = sequelize.define('BookedBikes', {
         allowNull: false
     },
     total_amount: {
-        type: Sequelize.NUMBER,
+        type: Sequelize.INTEGER,
         allowNull: false
     },
     payment_status: {

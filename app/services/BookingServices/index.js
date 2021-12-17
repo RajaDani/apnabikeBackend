@@ -1,7 +1,6 @@
 const BookedBikes = require('../../../models/bookedBikes');
 const sequelize = require('sequelize');
-const { when } = require('joi');
-const { where } = require('sequelize');
+const User = require('../../../models/users');
 
 async function allBookings(res) {
     let bookings = await BookedBikes.findAll();
@@ -13,9 +12,21 @@ async function allBookings(res) {
 }
 
 async function newBooking(data, res) {
+
+    console.log(data);
+    let user = await User.findOne({
+        where: {
+            user_uuid: data.userId
+        }
+    })
+
+    if (user) {
+        var userId = user.user_id;
+    }
+
     let bookings = await BookedBikes.create({
         bike_id: data.bikeId,
-        user_id: data.userId,
+        user_id: userId,
         booked_from: data.book_from,
         booked_till: data.book_till,
         total_amount: data.total,
@@ -25,21 +36,21 @@ async function newBooking(data, res) {
     if (bookings) {
         return bookings
     }
-    else res.status(401).send({ message: 'No Booking Found' })
+    else res.status(401).send({ message: 'Booking cannot be created' })
 
 }
 
 async function updateBookingData(data, res) {
+    console.log(data);
     let bookings = await BookedBikes.update({
         bike_id: data.bikeId,
         user_id: data.userId,
-        booked_from: data.book_from,
-        booked_till: data.book_till,
+        booked_from: data.booked_from,
+        booked_till: data.booked_till,
         total_amount: data.total,
         payment_status: data.payment_status,
     }, {
         where: { booked_bikes_id: data.booked_bikes_id }
-
     });
     if (bookings) {
         return bookings
@@ -60,6 +71,10 @@ async function deleteBookingData(data, res) {
 
 }
 
+async function chartData(res) {
+
+}
 
 
-module.exports = { allBookings, newBooking, updateBookingData, deleteBookingData }
+
+module.exports = { allBookings, newBooking, updateBookingData, deleteBookingData, chartData }

@@ -4,12 +4,22 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
-var indexRouter = require('./routes/bookings');
-var usersRouter = require('./routes/users');
-var bikeRouter = require('./routes/bikes');
-var rentRouter = require('./routes/rent');
-var cityRouter = require('./routes/cities');
-var bookingRouter = require('./routes/bookings');
+
+// user Routes Controllers
+var indexRouter = require('./routes/client/bookings');
+var userUsersRouter = require('./routes/client/users');
+var userBikeRouter = require('./routes/client/bikes');
+var userCityRouter = require('./routes/client/cities');
+var userBookingRouter = require('./routes/client/bookings');
+var userDashboardRouter = require('./routes/client/dashboard');
+
+// admin Routes Controllers
+var adminUserRouter = require('./routes/admin/users');
+var adminBikeRouter = require('./routes/admin/bikes');
+var adminCityRouter = require('./routes/admin/cities');
+var adminRentRouter = require('./routes/admin/rent');
+var adminBookingRouter = require('./routes/admin/bookings');
+var adminDashboardRouter = require('./routes/admin/dashboard');
 
 var app = express();
 
@@ -25,11 +35,23 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/bikes', bikeRouter);
-app.use('/rent', rentRouter);
-app.use('/city', cityRouter);
-app.use('/bookings', bookingRouter);
+
+// user Routes
+
+app.use('/client/users', userUsersRouter);
+app.use('/client/bikes', userBikeRouter);
+app.use('/client/city', userCityRouter);
+app.use('/client/bookings', userBookingRouter);
+app.use('/client/dashboard', userDashboardRouter);
+
+// admin Routes
+
+app.use('/admin/rent', adminRentRouter);
+app.use('/admin/dashboard', adminDashboardRouter);
+app.use('/admin/users', adminUserRouter);
+app.use('/admin/bikes', adminBikeRouter);
+app.use('/admin/city', adminCityRouter);
+app.use('/admin/bookings', adminBookingRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

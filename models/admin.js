@@ -6,7 +6,12 @@ const Admin = sequelize.define('Admin', {
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false,
-        autoIncrement: true,
+        autoIncrement: true
+    },
+    admin_uuid: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        defaultValue: Sequelize.UUIDV4
     },
     firstname: {
         type: Sequelize.STRING,

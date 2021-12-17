@@ -1,13 +1,15 @@
 const createError = require('http-errors');
+// const { UUIDV4 } = require('sequelize/types');
 const Admin = require('../../../models/admin');
 const sequelize = require('../../../models/db');
 const User = require('../../../models/users');
+const { v4: uuidv4 } = require('uuid');
 
 async function newUser({ value }, res) {
     try {
-
-        console.log(value);
+        let key = '3420948923334234234830242';
         let newAddedUser = await User.create({
+            user_id: uuidv4(key),
             firstname: value.firstname,
             lastname: value.lastname,
             username: value.username,
@@ -68,7 +70,7 @@ async function verifyUserMobile(data, res) {
         }
     });
 
-    if (user) return (user);
+    if (user) return (user.user_id);
     else res.status(404).send({ message: 'User not found' })
 }
 
