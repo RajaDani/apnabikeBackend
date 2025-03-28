@@ -17,6 +17,7 @@ async function chartData(res) {
 }
 
 async function dashboardData(res) {
+  sequelize.sync()
   let bike = await Bike.count();
   let orders = await Booked.count();
   let users = await User.count();
