@@ -5,9 +5,8 @@ const User = require("../../../models/users");
 const Booked = require("../../../models/bookedBikes");
 
 async function chartData(res) {
-  sequelize.sync();
   let chart = await sequelize.query(
-    "SELECT sum(bookedbikes.total_amount)  as total , monthname(bookedbikes.booked_from) as monthly , year(bookedbikes.booked_from) as yearly from apnabike.bookedbikes group by month(bookedbikes.booked_from) , year(bookedbikes.booked_from) order by booked_from",
+    "SELECT sum(BookedBikes.total_amount)  as total , monthname(BookedBikes.booked_from) as monthly , year(BookedBikes.booked_from) as yearly from apnabike.BookedBikes group by month(BookedBikes.booked_from) , year(BookedBikes.booked_from) order by booked_from",
     {
       type: QueryTypes.SELECT,
     }
@@ -18,7 +17,6 @@ async function chartData(res) {
 }
 
 async function dashboardData(res) {
-  sequelize.sync();
   let bike = await Bike.count();
   let orders = await Booked.count();
   let users = await User.count();
@@ -28,13 +26,11 @@ async function dashboardData(res) {
 }
 
 async function latestTransactions(res) {
-  sequelize.sync();
   let transactions = await Booked.findAll({ limit: 7 });
   if (transactions) return transactions;
 }
 
 async function mapCoordinates(res) {
-  sequelize.sync();
   let coordinates = await Booked.findAll({
     where: {
       bike_delivery: "Drop at location",
